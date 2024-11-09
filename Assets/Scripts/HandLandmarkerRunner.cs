@@ -9,7 +9,7 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
   public class HandLandmarkerRunner : VisionTaskApiRunner<HandLandmarker>
   {
     [SerializeField] private HandLandmarkerResultAnnotationController _handLandmarkerResultAnnotationController;
-    [SerializeField] private HandGestureGroups _handGestureGroups;
+    [SerializeField] private HandGestureObjectManager _handGestureGroups;
 
     private Experimental.TextureFramePool _textureFramePool;
 
