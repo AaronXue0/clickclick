@@ -1217,6 +1217,10 @@ MonoBehaviour:
       gestureType: 2
     - targetObject: {fileID: 1809664502}
       gestureType: 1
+  handLandmarkAnnotation: {fileID: 1740313527}
+  followSpeed: 10
+  depth: 10
+  positionOffset: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

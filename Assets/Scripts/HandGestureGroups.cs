@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
 using Mediapipe.Tasks.Vision.HandLandmarker;
+using Mediapipe.Tasks.Components.Containers;
+using Mediapipe.Unity;
 
 namespace ClickClick.GestureTracking
 {
@@ -8,6 +10,7 @@ namespace ClickClick.GestureTracking
     {
         [SerializeField] private HandGestureMappingGroup leftHandGestures;
         [SerializeField] private HandGestureMappingGroup rightHandGestures;
+        [SerializeField] private MultiHandLandmarkListAnnotation handLandmarkAnnotation;
 
         private HandLandmarkerResult currentResult;
         private bool needsUpdate = false;
@@ -22,6 +25,10 @@ namespace ClickClick.GestureTracking
             RingOpen = 8,
             PinkyOpen = 16
         }
+
+        [SerializeField] private float followSpeed = 10f;
+        [SerializeField] private float depth = 10f;
+        [SerializeField] private Vector3 positionOffset = Vector3.zero;
 
         private void Update()
         {
@@ -48,8 +55,20 @@ namespace ClickClick.GestureTracking
                 return;
             }
 
+            if (handLandmarkAnnotation == null)
+            {
+                Debug.LogError("HandLandmarkAnnotation is not assigned!");
+                return;
+            }
+
             for (int i = 0; i < result.handLandmarks.Count; i++)
             {
+                if (i >= result.handedness.Count || i >= result.handLandmarks.Count)
+                {
+                    Debug.LogError($"Index {i} is out of bounds for handedness or landmarks!");
+                    continue;
+                }
+
                 var landmarks = result.handLandmarks[i];
                 var handedness = result.handedness[i];
 
@@ -63,8 +82,52 @@ namespace ClickClick.GestureTracking
                 if (matchingMapping?.targetObject != null)
                 {
                     matchingMapping.targetObject.SetActive(true);
+
+                    if (handLandmarkAnnotation.transform.childCount > i)
+                    {
+                        var handAnnotation = handLandmarkAnnotation.transform.GetChild(i);
+                        if (handAnnotation != null)
+                        {
+                            var pointListAnnotation = handAnnotation.GetChild(0);
+                            if (pointListAnnotation != null && pointListAnnotation.childCount > 9)
+                            {
+                                var middleFingerBase = pointListAnnotation.GetChild(9);
+                                if (middleFingerBase != null)
+                                {
+                                    matchingMapping.targetObject.transform.SetParent(middleFingerBase, false);
+                                    matchingMapping.targetObject.transform.localPosition = Vector3.zero;
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("Middle finger base landmark not found!");
+                                }
+                            }
+                            else
+                            {
+                                Debug.LogWarning("Point List Annotation doesn't have enough landmarks!");
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Hand annotation not found for index: " + i);
+                        }
+                    }
                 }
             }
+        }
+
+        private Vector3 CalculateHandCenter(NormalizedLandmarks landmarks)
+        {
+            Vector3 sum = Vector3.zero;
+            int[] palmPoints = new int[] { 0, 5, 9, 13, 17 };
+
+            foreach (int index in palmPoints)
+            {
+                var landmark = landmarks.landmarks[index];
+                sum += new Vector3(landmark.x, landmark.y, landmark.z);
+            }
+
+            return sum / palmPoints.Length;
         }
 
         private void DisableAllObjects(HandGestureMappingGroup group)
@@ -80,11 +143,10 @@ namespace ClickClick.GestureTracking
             }
         }
 
-        private FingerState DetectFingerState(Mediapipe.Tasks.Components.Containers.NormalizedLandmarks landmarks)
+        private FingerState DetectFingerState(NormalizedLandmarks landmarks)
         {
             FingerState state = FingerState.Closed;
 
-            // 定義手掌基準點 (手掌中心)
             var palmBase = landmarks.landmarks[0];  // WRIST
             var palmCenter = new Vector3(
                 (landmarks.landmarks[5].x + landmarks.landmarks[17].x) / 2,
@@ -92,7 +154,6 @@ namespace ClickClick.GestureTracking
                 (landmarks.landmarks[5].z + landmarks.landmarks[17].z) / 2
             );
 
-            // 拇指 (使用向量角度)
             var thumbBase = landmarks.landmarks[2];  // THUMB_CMC
             var thumbTip = landmarks.landmarks[4];   // THUMB_TIP
             var thumbAngle = CalculateFingerAngle(
@@ -105,25 +166,21 @@ namespace ClickClick.GestureTracking
                 state |= FingerState.ThumbOpen;
             }
 
-            // 食指
             if (IsFingerOpen(landmarks, 5, 6, 8, palmCenter))
             {
                 state |= FingerState.IndexOpen;
             }
 
-            // 中指
             if (IsFingerOpen(landmarks, 9, 10, 12, palmCenter))
             {
                 state |= FingerState.MiddleOpen;
             }
 
-            // 無名指
             if (IsFingerOpen(landmarks, 13, 14, 16, palmCenter))
             {
                 state |= FingerState.RingOpen;
             }
 
-            // 小指
             if (IsFingerOpen(landmarks, 17, 18, 20, palmCenter))
             {
                 state |= FingerState.PinkyOpen;
@@ -132,21 +189,19 @@ namespace ClickClick.GestureTracking
             return state;
         }
 
-        private bool IsFingerOpen(Mediapipe.Tasks.Components.Containers.NormalizedLandmarks landmarks,
+        private bool IsFingerOpen(NormalizedLandmarks landmarks,
             int baseIndex, int midIndex, int tipIndex, Vector3 palmCenter)
         {
             var basePoint = landmarks.landmarks[baseIndex];
             var midPoint = landmarks.landmarks[midIndex];
             var tipPoint = landmarks.landmarks[tipIndex];
 
-            // 計算手指彎曲角度
             float bendAngle = CalculateFingerAngle(
                 new Vector3(basePoint.x, basePoint.y, basePoint.z),
                 new Vector3(midPoint.x, midPoint.y, midPoint.z),
                 new Vector3(tipPoint.x, tipPoint.y, tipPoint.z)
             );
 
-            // 計算指尖到手掌中心的距離
             float tipToPalmDistance = Vector3.Distance(
                 new Vector3(tipPoint.x, tipPoint.y, tipPoint.z),
                 palmCenter
@@ -157,7 +212,6 @@ namespace ClickClick.GestureTracking
                 palmCenter
             );
 
-            // 如果手指彎曲角度較大且指尖距離手掌中心較遠，則認為手指是張開的
             return bendAngle > 160f && tipToPalmDistance > baseToPalmDistance;
         }
 
@@ -167,7 +221,6 @@ namespace ClickClick.GestureTracking
             Vector3 vector2 = point3 - point2;
 
             float dotProduct = Vector3.Dot(vector1.normalized, vector2.normalized);
-            // 確保 dotProduct 在有效範圍內
             dotProduct = Mathf.Clamp(dotProduct, -1f, 1f);
 
             return Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
@@ -175,8 +228,6 @@ namespace ClickClick.GestureTracking
 
         private HandGesture DetermineGesture(FingerState state)
         {
-            // 布：大部分手指都打開
-            // 允許拇指可能沒完全打開
             if ((state & (FingerState.IndexOpen | FingerState.MiddleOpen |
                          FingerState.RingOpen | FingerState.PinkyOpen)) ==
                 (FingerState.IndexOpen | FingerState.MiddleOpen |
@@ -185,8 +236,6 @@ namespace ClickClick.GestureTracking
                 return HandGesture.Paper;
             }
 
-            // 剪刀：食指和中指打開，其他手指閉合
-            // 允許有些微誤差
             if ((state & (FingerState.IndexOpen | FingerState.MiddleOpen)) ==
                 (FingerState.IndexOpen | FingerState.MiddleOpen) &&
                 (state & (FingerState.RingOpen | FingerState.PinkyOpen)) == 0)
@@ -194,8 +243,20 @@ namespace ClickClick.GestureTracking
                 return HandGesture.Scissors;
             }
 
-            // 石頭：所有手指都閉合
             return HandGesture.Rock;
+        }
+
+        private void Start()
+        {
+            if (handLandmarkAnnotation == null)
+            {
+                Debug.LogError("HandLandmarkAnnotation is not assigned! Please assign it in the inspector.");
+            }
+
+            if (leftHandGestures == null || rightHandGestures == null)
+            {
+                Debug.LogError("Hand gesture groups are not assigned! Please assign them in the inspector.");
+            }
         }
     }
 }
