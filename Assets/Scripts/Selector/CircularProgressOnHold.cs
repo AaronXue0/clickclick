@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using Mediapipe.Tasks.Vision.HandLandmarker;
 using ClickClick.GestureTracking;
 using Mediapipe.Unity;
+using DG.Tweening;
 
 namespace ClickClick.Tool
 {
@@ -30,6 +31,8 @@ namespace ClickClick.Tool
 
         [SerializeField] private float stateChangeCooldown = 0.2f;
         private float lastStateChangeTime;
+
+        [SerializeField] private float stateChangeDuration = 0.3f;
 
         private void Start()
         {
@@ -66,22 +69,22 @@ namespace ClickClick.Tool
                     }
                 }
 
-                // Set rightHandGameObject's image alpha to 0
-                rightHandGameObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+                // Fade out rightHandGameObject's image alpha to 0
+                rightHandGameObject.GetComponent<Image>().DOFade(0f, stateChangeDuration);
 
                 // Scale down targetButton
-                targetButton.transform.localScale = originalTargetButtonScale * targetButtonScaleDownFactor;
+                targetButton.transform.DOScale(originalTargetButtonScale * targetButtonScaleDownFactor, stateChangeDuration);
             }
             else if (!isCompleted && Time.time - lastStateChangeTime >= stateChangeCooldown)
             {
                 currentProgress = 0f;
                 progressImage.fillAmount = 0f;
 
-                // Reset rightHandGameObject's image alpha to 1
-                rightHandGameObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
+                // Fade in rightHandGameObject's image alpha to 1
+                rightHandGameObject.GetComponent<Image>().DOFade(1f, stateChangeDuration);
 
                 // Reset targetButton's scale
-                targetButton.transform.localScale = originalTargetButtonScale;
+                targetButton.transform.DOScale(originalTargetButtonScale, stateChangeDuration);
 
                 lastStateChangeTime = Time.time;
             }
@@ -127,7 +130,11 @@ namespace ClickClick.Tool
 
             // Check if rightHandGameObject is overlapping targetButton
             bool newOverlappingState = IsOverlappingTargetButton(gestureGroup);
-            if (newOverlappingState != isOverlapping && Time.time - lastStateChangeTime >= stateChangeCooldown)
+            if (newOverlappingState)
+            {
+                isOverlapping = newOverlappingState;
+            }
+            else if (Time.time - lastStateChangeTime >= stateChangeCooldown)
             {
                 isOverlapping = newOverlappingState;
                 lastStateChangeTime = Time.time;

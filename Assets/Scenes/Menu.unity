@@ -2656,7 +2656,8 @@ MonoBehaviour:
   targetButtonScaleDownFactor: 0.8
   rightHandGameObject: {fileID: 1803348850}
   handLandmarkAnnotation: {fileID: 176648958}
-  stateChangeCooldown: 0.05
+  stateChangeCooldown: 0.3
+  stateChangeDuration: 0.3
 --- !u!1 &2049908355
 GameObject:
   m_ObjectHideFlags: 0
