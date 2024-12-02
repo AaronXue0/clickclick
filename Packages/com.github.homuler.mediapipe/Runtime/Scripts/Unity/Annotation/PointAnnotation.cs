@@ -109,7 +109,15 @@ namespace Mediapipe.Unity
 
     private void ApplyColor(Color color)
     {
-      GetComponent<Renderer>().material.color = color;
+      if (color.a == 0)
+      {
+        GetComponent<Renderer>().enabled = false;
+      }
+      else
+      {
+        GetComponent<Renderer>().enabled = true;
+        GetComponent<Renderer>().material.color = color;
+      }
     }
 
     private void ApplyRadius(float radius)

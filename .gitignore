@@ -74,4 +74,4 @@ crashlytics-build.properties
 /AllIn1SpriteShader/Demo/
 
 
-Packages/com.github.homuler.mediapipe/Runtime/Plugins/iOS/MediaPipeUnity.framework/MediaPipeUnity
+/Packages/com.github.homuler.mediapipe/Runtime/Plugins/iOS/MediaPipeUnity.framework/MediaPipeUnity

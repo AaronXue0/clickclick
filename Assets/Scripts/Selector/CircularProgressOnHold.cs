@@ -12,6 +12,7 @@ namespace ClickClick.Tool
         [SerializeField] private GameObject targetButton;
         [SerializeField] private Image progressImage;
         [SerializeField] private float duration;
+        [SerializeField] private float targetButtonScaleDownFactor = 0.9f;
 
         [Header("Hand Gesture")]
         [SerializeField] private GameObject rightHandGameObject;
@@ -19,15 +20,22 @@ namespace ClickClick.Tool
 
         private HandGestureDetector gestureDetector;
         private HandLandmarkerResult currentResult;
-        private bool needsUpdate = false;//
+        private bool needsUpdate = false;
 
         private float currentProgress = 0f;
         private bool isOverlapping = false;
         private bool isCompleted = false;
 
+        private Vector3 originalTargetButtonScale;
+
+        [SerializeField] private float stateChangeCooldown = 0.2f;
+        private float lastStateChangeTime;
+
         private void Start()
         {
             gestureDetector = new HandGestureDetector();
+            originalTargetButtonScale = targetButton.transform.localScale;
+            lastStateChangeTime = -stateChangeCooldown;
         }
 
         private void Update()
@@ -50,13 +58,32 @@ namespace ClickClick.Tool
                 if (currentProgress >= 1f)
                 {
                     targetButton.GetComponent<Button>().onClick.Invoke();
-                    isCompleted = true;
+
+                    if (!isCompleted)
+                    {
+                        isCompleted = true;
+                        SceneTransition.Instance.TransitionToScene("Game");
+                    }
                 }
+
+                // Set rightHandGameObject's image alpha to 0
+                rightHandGameObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+
+                // Scale down targetButton
+                targetButton.transform.localScale = originalTargetButtonScale * targetButtonScaleDownFactor;
             }
-            else if (!isCompleted)
+            else if (!isCompleted && Time.time - lastStateChangeTime >= stateChangeCooldown)
             {
                 currentProgress = 0f;
                 progressImage.fillAmount = 0f;
+
+                // Reset rightHandGameObject's image alpha to 1
+                rightHandGameObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
+
+                // Reset targetButton's scale
+                targetButton.transform.localScale = originalTargetButtonScale;
+
+                lastStateChangeTime = Time.time;
             }
         }
 
@@ -99,7 +126,12 @@ namespace ClickClick.Tool
             UpdateObjectPosition(gestureGroup, handIndex);
 
             // Check if rightHandGameObject is overlapping targetButton
-            isOverlapping = IsOverlappingTargetButton(gestureGroup);
+            bool newOverlappingState = IsOverlappingTargetButton(gestureGroup);
+            if (newOverlappingState != isOverlapping && Time.time - lastStateChangeTime >= stateChangeCooldown)
+            {
+                isOverlapping = newOverlappingState;
+                lastStateChangeTime = Time.time;
+            }
         }
 
         private void UpdateObjectPosition(GameObject targetObject, int handIndex)
