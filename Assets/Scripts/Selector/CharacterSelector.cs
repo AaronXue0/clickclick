@@ -31,6 +31,7 @@ namespace ClickClick.Tool
 
         private CharacterData currentTarget;
         private Dictionary<Button, Vector3> originalButtonScales = new Dictionary<Button, Vector3>();
+        private bool isSelectionLocked = false;
 
         protected override float ProgressFillAmount
         {
@@ -57,8 +58,11 @@ namespace ClickClick.Tool
 
         protected override void HandleProgressComplete()
         {
-            if (currentTarget != null)
+            if (currentTarget != null && !isSelectionLocked)
             {
+                // Lock the selection
+                isSelectionLocked = true;
+
                 // Update preview
                 previewImage.sprite = currentTarget.characterSprite;
                 characterNameText.text = currentTarget.characterName;
@@ -66,13 +70,27 @@ namespace ClickClick.Tool
                 // Trigger the button click
                 currentTarget.characterButton.onClick.Invoke();
 
-                // Transition to the next scene
-                SceneTransition.Instance.TransitionToScene(sceneToTransitionTo);
+                // Transition to the next scene after a short delay
+                StartCoroutine(TransitionAfterDelay());
             }
+        }
+
+        private IEnumerator TransitionAfterDelay()
+        {
+            // Wait for a short moment to show the final state
+            yield return new WaitForSeconds(0.5f);
+            // Transition to the next scene
+            SceneTransition.Instance.TransitionToScene(sceneToTransitionTo);
         }
 
         protected override bool IsOverlappingTargetButton(GameObject gestureObject)
         {
+            // If selection is locked, prevent any further changes
+            if (isSelectionLocked)
+            {
+                return currentTarget != null;
+            }
+
             if (gestureObject == null || gameObject.activeSelf == false)
             {
                 return false;
@@ -147,9 +165,13 @@ namespace ClickClick.Tool
 
         protected override void ResetProgress()
         {
-            base.ResetProgress();
-            currentTarget = null;
-            UpdatePreview(null);
+            // Only reset if selection is not locked
+            if (!isSelectionLocked)
+            {
+                base.ResetProgress();
+                currentTarget = null;
+                UpdatePreview(null);
+            }
         }
 
         private void UpdatePreview(CharacterData character)
