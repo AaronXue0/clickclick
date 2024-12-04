@@ -2638,6 +2638,7 @@ MonoBehaviour:
   runningMode: 0
   _handLandmarkerResultAnnotationController: {fileID: 1385281029}
   _circularProgressOnHold: {fileID: 2038873741}
+  _characterSelector: {fileID: 0}
 --- !u!114 &2038873741
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2647,17 +2648,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 2038873737}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c04c7cf5d79a4dddac95ce646967e73, type: 3}
+  m_Script: {fileID: 11500000, guid: 91d5f995825bd46c8aa309956ccc058e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetButton: {fileID: 1182093638}
-  progressImage: {fileID: 1890659741}
-  duration: 3
-  targetButtonScaleDownFactor: 0.8
+  duration: 1.5
+  targetButtonScaleDownFactor: 0.9
   rightHandGameObject: {fileID: 1803348850}
   handLandmarkAnnotation: {fileID: 176648958}
-  stateChangeCooldown: 0.3
+  sceneToTransitionTo: CharacterSelector
+  stateChangeCooldown: 0.2
   stateChangeDuration: 0.3
+  targetButton: {fileID: 1182093638}
+  progressImage: {fileID: 1890659741}
 --- !u!1 &2049908355
 GameObject:
   m_ObjectHideFlags: 0
@@ -2920,9 +2922,9 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3259285891027194554}
   - {fileID: 1182093639}
   - {fileID: 1312535538}
+  - {fileID: 3259285891027194554}
   m_Father: {fileID: 8571076843425062184}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

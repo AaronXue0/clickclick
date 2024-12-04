@@ -7,41 +7,46 @@ using DG.Tweening;
 
 namespace ClickClick.Tool
 {
-    public class CircularProgressOnHold : MonoBehaviour
+    public abstract class CircularProgressOnHold : MonoBehaviour
     {
         [Header("UI")]
-        [SerializeField] private GameObject targetButton;
-        [SerializeField] private Image progressImage;
-        [SerializeField] private float duration;
-        [SerializeField] private float targetButtonScaleDownFactor = 0.9f;
+        [SerializeField] protected float duration;
+        [SerializeField] protected float targetButtonScaleDownFactor = 0.9f;
 
         [Header("Hand Gesture")]
-        [SerializeField] private GameObject rightHandGameObject;
-        [SerializeField] private MultiHandLandmarkListAnnotation handLandmarkAnnotation;
+        [SerializeField] protected GameObject rightHandGameObject;
+        [SerializeField] protected MultiHandLandmarkListAnnotation handLandmarkAnnotation;
+        [SerializeField] protected string sceneToTransitionTo;
 
-        private HandGestureDetector gestureDetector;
-        private HandLandmarkerResult currentResult;
-        private bool needsUpdate = false;
+        protected HandGestureDetector gestureDetector;
+        protected HandLandmarkerResult currentResult;
+        protected bool needsUpdate = false;
 
-        private float currentProgress = 0f;
-        private bool isOverlapping = false;
-        private bool isCompleted = false;
+        protected float currentProgress = 0f;
+        protected bool isOverlapping = false;
+        protected bool isCompleted = false;
 
-        private Vector3 originalTargetButtonScale;
+        [SerializeField] protected float stateChangeCooldown = 0.2f;
+        protected float lastStateChangeTime;
 
-        [SerializeField] private float stateChangeCooldown = 0.2f;
-        private float lastStateChangeTime;
+        [SerializeField] protected float stateChangeDuration = 0.3f;
 
-        [SerializeField] private float stateChangeDuration = 0.3f;
+        protected abstract float ProgressFillAmount { get; set; }
 
-        private void Start()
+        protected virtual void Start()
         {
             gestureDetector = new HandGestureDetector();
-            originalTargetButtonScale = targetButton.transform.localScale;
             lastStateChangeTime = -stateChangeCooldown;
+            InitializeTargetButton();
         }
 
-        private void Update()
+        // Abstract methods that derived classes must implement
+        protected abstract void InitializeTargetButton();
+        protected abstract void HandleProgressComplete();
+        protected abstract bool IsOverlappingTargetButton(GameObject gestureObject);
+        protected abstract void UpdateTargetButtonScale(bool isOverlapping);
+
+        protected virtual void Update()
         {
             if (needsUpdate)
             {
@@ -49,54 +54,59 @@ namespace ClickClick.Tool
                 needsUpdate = false;
             }
 
-            // Check if rightHandGameObject is overlapping targetButton
+            UpdateProgress();
+        }
+
+        protected virtual void UpdateProgress()
+        {
             if (isOverlapping && !isCompleted)
             {
                 // Increase progress over time
                 currentProgress += Time.deltaTime / duration;
                 currentProgress = Mathf.Clamp01(currentProgress);
-                progressImage.fillAmount = currentProgress;
+                ProgressFillAmount = currentProgress;
 
-                // Trigger button click when progress reaches 1
-                if (currentProgress >= 1f)
+                // Trigger when progress reaches 1
+                if (currentProgress >= 1f && !isCompleted)
                 {
-                    targetButton.GetComponent<Button>().onClick.Invoke();
-
-                    if (!isCompleted)
-                    {
-                        isCompleted = true;
-                        SceneTransition.Instance.TransitionToScene("Game");
-                    }
+                    isCompleted = true;
+                    HandleProgressComplete();
                 }
 
                 // Fade out rightHandGameObject's image alpha to 0
                 rightHandGameObject.GetComponent<Image>().DOFade(0f, stateChangeDuration);
 
-                // Scale down targetButton
-                targetButton.transform.DOScale(originalTargetButtonScale * targetButtonScaleDownFactor, stateChangeDuration);
+                // Update target button scale
+                UpdateTargetButtonScale(true);
             }
             else if (!isCompleted && Time.time - lastStateChangeTime >= stateChangeCooldown)
             {
-                currentProgress = 0f;
-                progressImage.fillAmount = 0f;
-
-                // Fade in rightHandGameObject's image alpha to 1
-                rightHandGameObject.GetComponent<Image>().DOFade(1f, stateChangeDuration);
-
-                // Reset targetButton's scale
-                targetButton.transform.DOScale(originalTargetButtonScale, stateChangeDuration);
-
-                lastStateChangeTime = Time.time;
+                ResetProgress();
             }
         }
 
+        protected virtual void ResetProgress()
+        {
+            currentProgress = 0f;
+            ProgressFillAmount = 0f;
+
+            // Fade in rightHandGameObject's image alpha to 1
+            rightHandGameObject.GetComponent<Image>().DOFade(1f, stateChangeDuration);
+
+            // Reset target button scale
+            UpdateTargetButtonScale(false);
+
+            lastStateChangeTime = Time.time;
+        }
+
+        // Rest of the existing methods remain the same, but made protected...
         public void UpdateGestureObjects(HandLandmarkerResult result)
         {
             currentResult = result;
             needsUpdate = true;
         }
 
-        private void UpdateGestureObjectsInternal(HandLandmarkerResult result)
+        protected virtual void UpdateGestureObjectsInternal(HandLandmarkerResult result)
         {
             DisableAllObjects(rightHandGameObject);
 
@@ -112,8 +122,6 @@ namespace ClickClick.Tool
                 bool isRightHand = handedness.categories[0].categoryName.ToLower().Contains("left");
                 var gestureGroup = isRightHand ? rightHandGameObject : null;
 
-                Debug.Log($"Gesture Group = {gestureGroup}");
-
                 if (gestureGroup == null)
                     continue;
 
@@ -123,7 +131,7 @@ namespace ClickClick.Tool
             }
         }
 
-        private void UpdateHandGestureObject(GameObject gestureGroup, HandGesture gesture, int handIndex)
+        protected virtual void UpdateHandGestureObject(GameObject gestureGroup, HandGesture gesture, int handIndex)
         {
             gestureGroup.SetActive(true);
             UpdateObjectPosition(gestureGroup, handIndex);
@@ -141,7 +149,7 @@ namespace ClickClick.Tool
             }
         }
 
-        private void UpdateObjectPosition(GameObject targetObject, int handIndex)
+        protected virtual void UpdateObjectPosition(GameObject targetObject, int handIndex)
         {
             if (handLandmarkAnnotation == null || handLandmarkAnnotation.transform.childCount <= handIndex)
             {
@@ -162,39 +170,9 @@ namespace ClickClick.Tool
             }
         }
 
-        private void DisableAllObjects(GameObject gameObject)
+        protected virtual void DisableAllObjects(GameObject gameObject)
         {
             gameObject.SetActive(false);
-        }
-
-        private bool IsOverlappingTargetButton(GameObject gestureObject)
-        {
-            if (gestureObject == null || gameObject.activeSelf == false)
-            {
-                return false;
-            }
-
-            RectTransform gestureRect = gestureObject.GetComponent<RectTransform>();
-            RectTransform targetRect = targetButton.GetComponent<RectTransform>();
-
-            if (gestureRect != null && targetRect != null)
-            {
-                Vector3[] gestureCorners = new Vector3[4];
-                Vector3[] targetCorners = new Vector3[4];
-
-                gestureRect.GetWorldCorners(gestureCorners);
-                targetRect.GetWorldCorners(targetCorners);
-
-                Rect gestureRectangle = new Rect(gestureCorners[0].x, gestureCorners[0].y,
-                    gestureCorners[2].x - gestureCorners[0].x, gestureCorners[2].y - gestureCorners[0].y);
-
-                Rect targetRectangle = new Rect(targetCorners[0].x, targetCorners[0].y,
-                    targetCorners[2].x - targetCorners[0].x, targetCorners[2].y - targetCorners[0].y);
-
-                return gestureRectangle.Overlaps(targetRectangle);
-            }
-
-            return false;
         }
     }
 }
