@@ -140,7 +140,6 @@ namespace ClickClick.Photograph
                 isCountingDown = false;
                 countdownText.text = "";
                 TakePhotograph();
-                onCountdownComplete?.Invoke();
                 return;
             }
 
@@ -299,6 +298,8 @@ namespace ClickClick.Photograph
             capturedPhotoImage.rectTransform.offsetMin = Vector2.zero;
             capturedPhotoImage.rectTransform.offsetMax = Vector2.zero;
             capturedPhotoImage.rectTransform.localScale = Vector3.one;
+
+            onCountdownComplete?.Invoke();
         }
     }
 }

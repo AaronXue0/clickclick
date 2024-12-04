@@ -194,5 +194,13 @@ namespace ClickClick.Tool
 
             Debug.Log($"Preview image current sprite: {previewImage.sprite}");
         }
+
+        protected override void Start()
+        {
+            // If you want to set it in code, uncomment the line below
+            allowHandVisibilityChange = false;
+
+            base.Start();
+        }
     }
 }

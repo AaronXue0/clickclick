@@ -18,6 +18,9 @@ namespace ClickClick.Tool
         [SerializeField] protected MultiHandLandmarkListAnnotation handLandmarkAnnotation;
         [SerializeField] protected string sceneToTransitionTo;
 
+        [Header("Hand Visibility")]
+        [SerializeField] protected bool allowHandVisibilityChange = true;
+
         protected HandGestureDetector gestureDetector;
         protected HandLandmarkerResult currentResult;
         protected bool needsUpdate = false;
@@ -73,8 +76,11 @@ namespace ClickClick.Tool
                     HandleProgressComplete();
                 }
 
-                // Fade out rightHandGameObject's image alpha to 0
-                rightHandGameObject.GetComponent<Image>().DOFade(0f, stateChangeDuration);
+                // Only fade out hand if allowed
+                if (allowHandVisibilityChange)
+                {
+                    rightHandGameObject.GetComponent<Image>().DOFade(0f, stateChangeDuration);
+                }
 
                 // Update target button scale
                 UpdateTargetButtonScale(true);
@@ -90,8 +96,11 @@ namespace ClickClick.Tool
             currentProgress = 0f;
             ProgressFillAmount = 0f;
 
-            // Fade in rightHandGameObject's image alpha to 1
-            rightHandGameObject.GetComponent<Image>().DOFade(1f, stateChangeDuration);
+            // Only fade in hand if allowed
+            if (allowHandVisibilityChange)
+            {
+                rightHandGameObject.GetComponent<Image>().DOFade(1f, stateChangeDuration);
+            }
 
             // Reset target button scale
             UpdateTargetButtonScale(false);
