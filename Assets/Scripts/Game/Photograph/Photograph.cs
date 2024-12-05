@@ -27,6 +27,9 @@ namespace ClickClick.Photograph
         [SerializeField] private Image photoMask;
         [SerializeField] private CanvasGroup photoMaskCanvasGroup;
 
+        [Header("Scene Transition")]
+        [SerializeField] private float delayBeforeTransition = 1f;
+
         private HandGestureDetector gestureDetector;
         private HandLandmarkerResult currentResult;
         private bool needsUpdate = false;
@@ -292,14 +295,20 @@ namespace ClickClick.Photograph
             capturedPhotoImage.transform.SetSiblingIndex(0);
 
             // Set to stretch and fill the mask
-            capturedPhotoImage.rectTransform.anchorMin = Vector2.zero;
-            capturedPhotoImage.rectTransform.anchorMax = Vector2.one;
-            capturedPhotoImage.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            capturedPhotoImage.rectTransform.offsetMin = Vector2.zero;
-            capturedPhotoImage.rectTransform.offsetMax = Vector2.zero;
-            capturedPhotoImage.rectTransform.localScale = Vector3.one;
+            // capturedPhotoImage.rectTransform.anchorMin = Vector2.zero;
+            // capturedPhotoImage.rectTransform.anchorMax = Vector2.one;
+            // capturedPhotoImage.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            // capturedPhotoImage.rectTransform.offsetMin = Vector2.zero;
+            // capturedPhotoImage.rectTransform.offsetMax = Vector2.zero;
+            // capturedPhotoImage.rectTransform.localScale = Vector3.one;
 
             onCountdownComplete?.Invoke();
+
+            // Add delay before scene transition
+            yield return new WaitForSeconds(delayBeforeTransition);
+
+            // Transition to Tutorial scene
+            SceneTransition.Instance.TransitionToScene("Tutorial");
         }
     }
 }
