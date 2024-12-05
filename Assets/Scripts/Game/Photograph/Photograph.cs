@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections;
+using ClickClick.Tool;
 namespace ClickClick.Photograph
 {
     public class Photograph : MonoBehaviour
@@ -29,6 +30,8 @@ namespace ClickClick.Photograph
 
         [Header("Scene Transition")]
         [SerializeField] private float delayBeforeTransition = 1f;
+        [SerializeField] private GameObject transitionButtonContainer;
+        [SerializeField] private SingleButtonProgress transitionButton;
 
         private HandGestureDetector gestureDetector;
         private HandLandmarkerResult currentResult;
@@ -37,6 +40,7 @@ namespace ClickClick.Photograph
         private bool isCountingDown;
         private HandGesture? leftHandGesture;
         private HandGesture? rightHandGesture;
+        private bool hasPhotoBeenTaken = false;
 
         private void Start()
         {
@@ -47,6 +51,10 @@ namespace ClickClick.Photograph
                 var color = flashEffect.color;
                 color.a = 0;
                 flashEffect.color = color;
+            }
+            if (transitionButton != null)
+            {
+                transitionButton.progressApproval = false;
             }
         }
 
@@ -69,6 +77,8 @@ namespace ClickClick.Photograph
 
         private void UpdateGestureObjectsInternal(HandLandmarkerResult result)
         {
+            if (hasPhotoBeenTaken) return;
+
             leftHandGesture = null;
             rightHandGesture = null;
 
@@ -151,6 +161,9 @@ namespace ClickClick.Photograph
 
         private void TakePhotograph()
         {
+            if (hasPhotoBeenTaken) return;
+
+            hasPhotoBeenTaken = true;
             StartCoroutine(PhotoEffect());
         }
 
@@ -304,11 +317,17 @@ namespace ClickClick.Photograph
 
             onCountdownComplete?.Invoke();
 
-            // Add delay before scene transition
+            // Add delay before showing transition button
             yield return new WaitForSeconds(delayBeforeTransition);
 
-            // Transition to Tutorial scene
-            SceneTransition.Instance.TransitionToScene("Tutorial");
+            // Activate the transition button
+            if (transitionButton != null)
+            {
+                transitionButton.progressApproval = true;
+                transitionButtonContainer.SetActive(true);
+            }
+
+            // Remove the direct scene transition code since it will now be handled by SingleButtonProgress
         }
     }
 }

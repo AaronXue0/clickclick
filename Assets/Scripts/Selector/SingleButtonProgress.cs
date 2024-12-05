@@ -6,6 +6,7 @@ namespace ClickClick.Tool
 {
     public class SingleButtonProgress : CircularProgressOnHold
     {
+        public bool progressApproval = true;
         [SerializeField] private GameObject targetButton;
         [SerializeField] private Image progressImage;
         private Vector3 originalTargetButtonScale;
@@ -29,6 +30,8 @@ namespace ClickClick.Tool
 
         protected override bool IsOverlappingTargetButton(GameObject gestureObject)
         {
+            if (!progressApproval) return false;
+
             if (gestureObject == null || gameObject.activeSelf == false)
             {
                 return false;
