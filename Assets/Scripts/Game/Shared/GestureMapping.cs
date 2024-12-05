@@ -6,6 +6,7 @@ namespace ClickClick.GestureTracking
     public class GestureMapping
     {
         public GameObject targetObject;
+        public Sprite displayImage;
         public HandGesture gestureType;
     }
 }

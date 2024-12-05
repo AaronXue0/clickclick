@@ -30,11 +30,22 @@ namespace ClickClick.Rank
             playerRankObject = rankObjects[rankObjects.Count - 1].transform;
         }
 
+        private void Start()
+        {
+            StartCoroutine(StartTestRevealSequence());
+        }
+
+        private IEnumerator StartTestRevealSequence()
+        {
+            yield return new WaitForSeconds(1f);
+            AssignRank(1);
+        }
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                AssignRank(2);
+                AssignRank(1);
             }
         }
 

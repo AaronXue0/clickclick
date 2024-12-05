@@ -1,6 +1,7 @@
 using UnityEngine;
 using Mediapipe.Tasks.Vision.HandLandmarker;
 using Mediapipe.Unity;
+using ClickClick.Gameplay;
 
 namespace ClickClick.GestureTracking
 {
@@ -8,25 +9,73 @@ namespace ClickClick.GestureTracking
     {
         [SerializeField] private HandGestureMappingGroup leftHandGestures;
         [SerializeField] private HandGestureMappingGroup rightHandGestures;
+        [SerializeField] private UnityEngine.UI.Image rightHandDisplayImage;
         [SerializeField] private MultiHandLandmarkListAnnotation handLandmarkAnnotation;
 
         private HandGestureDetector gestureDetector;
         private HandLandmarkerResult currentResult;
         private bool needsUpdate = false;
+        private bool _isGameActive = false;
+
+        private void Awake()
+        {
+            rightHandDisplayImage.sprite = null;
+            rightHandDisplayImage.transform.parent.gameObject.SetActive(false);
+            needsUpdate = false;
+        }
 
         private void Start()
         {
             ValidateComponents();
             gestureDetector = new HandGestureDetector();
+
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.onGameStart += EnableUpdates;
+                GameManager.Instance.onGameOver += DisableUpdates;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.onGameStart -= EnableUpdates;
+                GameManager.Instance.onGameOver -= DisableUpdates;
+            }
         }
 
         private void Update()
         {
-            if (needsUpdate)
-            {
-                UpdateGestureObjectsInternal(currentResult);
-                needsUpdate = false;
-            }
+            // Only update if game is active and there's something to update
+            if (!IsGameActive() || !needsUpdate) return;
+
+            UpdateGestureObjectsInternal(currentResult);
+            needsUpdate = false;
+        }
+
+        private bool IsGameActive()
+        {
+            return GameManager.Instance != null &&
+                   GameManager.Instance.enabled &&
+                   !GameManager.Instance.IsGameOver;
+        }
+
+        private void EnableUpdates()
+        {
+            _isGameActive = true;
+            needsUpdate = true;
+            rightHandDisplayImage.transform.parent.gameObject.SetActive(true);
+        }
+
+        private void DisableUpdates()
+        {
+            _isGameActive = false;
+            needsUpdate = false;
+            rightHandDisplayImage.sprite = null;
+            DisableAllObjects(leftHandGestures);
+            DisableAllObjects(rightHandGestures);
+            rightHandDisplayImage.transform.parent.gameObject.SetActive(false);
         }
 
         public void UpdateGestureObjects(HandLandmarkerResult result)
@@ -45,17 +94,32 @@ namespace ClickClick.GestureTracking
                 return;
             }
 
+            HandGesture rightHandGesture = HandGesture.None;
+            int leftHandIndex = -1;
+
+            // First pass: detect right hand gesture
             for (int i = 0; i < result.handLandmarks.Count; i++)
             {
                 if (!ValidateHandIndex(i, result)) continue;
 
-                var landmarks = result.handLandmarks[i];
                 var handedness = result.handedness[i];
                 bool isRightHand = handedness.categories[0].categoryName.ToLower().Contains("left");
-                var gestureGroup = isRightHand ? rightHandGestures : leftHandGestures;
 
-                var gesture = gestureDetector.DetectGesture(landmarks);
-                UpdateHandGestureObject(gestureGroup, gesture, i);
+                if (isRightHand)
+                {
+                    rightHandGesture = gestureDetector.DetectGesture(result.handLandmarks[i]);
+                    UpdateHandGestureSprite(rightHandGestures, rightHandGesture);
+                }
+                else
+                {
+                    leftHandIndex = i;
+                }
+            }
+
+            // Second pass: update left hand object based on right hand gesture
+            if (leftHandIndex != -1)
+            {
+                UpdateHandGestureObject(leftHandGestures, rightHandGesture, leftHandIndex);
             }
         }
 
@@ -64,8 +128,23 @@ namespace ClickClick.GestureTracking
             var matchingMapping = System.Array.Find(gestureGroup.gestureMappings, m => m.gestureType == gesture);
             if (matchingMapping?.targetObject == null) return;
 
+            if (!_isGameActive)
+                return;
+
             matchingMapping.targetObject.SetActive(true);
             UpdateObjectPosition(matchingMapping.targetObject, handIndex);
+        }
+
+        private void UpdateHandGestureSprite(HandGestureMappingGroup gestureGroup, HandGesture gesture)
+        {
+            var matchingMapping = System.Array.Find(gestureGroup.gestureMappings, m => m.gestureType == gesture);
+            if (matchingMapping?.displayImage == null)
+            {
+                rightHandDisplayImage.transform.parent.gameObject.SetActive(false);
+                return;
+            }
+
+            rightHandDisplayImage.sprite = matchingMapping.displayImage;
         }
 
         private void UpdateObjectPosition(GameObject targetObject, int handIndex)

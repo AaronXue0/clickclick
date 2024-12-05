@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Photograph.unity
     guid: c2f1a0a3cc11345f18dd47c0438ae76c
   - enabled: 1
+    path: Assets/Scenes/Tutorial.unity
+    guid: a7a31f253b2654255a4dd3be83a2b0b3
+  - enabled: 1
     path: Assets/Scenes/Game.unity
     guid: 9b2c96fab4ce54862b81de09827cbf0a
   - enabled: 1
