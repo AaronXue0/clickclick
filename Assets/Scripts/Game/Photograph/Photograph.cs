@@ -74,7 +74,7 @@ namespace ClickClick.Photograph
 
             if (ReferenceEquals(result, null) || result.handLandmarks == null || result.handLandmarks.Count == 0)
             {
-                ResetCountdown();
+                // ResetCountdown();
                 return;
             }
 
@@ -102,10 +102,10 @@ namespace ClickClick.Photograph
             {
                 OnBothHandsScissors();
             }
-            else
-            {
-                ResetCountdown();
-            }
+            // else
+            // {
+            //     ResetCountdown();
+            // }
         }
 
         private bool ValidateHandIndex(int index, HandLandmarkerResult result)
