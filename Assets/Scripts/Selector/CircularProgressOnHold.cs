@@ -15,6 +15,7 @@ namespace ClickClick.Tool
 
         [Header("Hand Gesture")]
         [SerializeField] protected GameObject rightHandGameObject;
+        [SerializeField] protected GameObject leftHandGameObject;
         [SerializeField] protected MultiHandLandmarkListAnnotation handLandmarkAnnotation;
         [SerializeField] protected string sceneToTransitionTo;
 
@@ -118,6 +119,7 @@ namespace ClickClick.Tool
         protected virtual void UpdateGestureObjectsInternal(HandLandmarkerResult result)
         {
             DisableAllObjects(rightHandGameObject);
+            DisableAllObjects(leftHandGameObject);
 
             if (ReferenceEquals(result, null) || result.handLandmarks == null || result.handLandmarks.Count == 0)
             {
@@ -129,14 +131,13 @@ namespace ClickClick.Tool
                 var landmarks = result.handLandmarks[i];
                 var handedness = result.handedness[i];
                 bool isRightHand = handedness.categories[0].categoryName.ToLower().Contains("left");
-                var gestureGroup = isRightHand ? rightHandGameObject : null;
+                var gestureGroup = isRightHand ? rightHandGameObject : leftHandGameObject;
 
                 if (gestureGroup == null)
                     continue;
 
                 var gesture = gestureDetector.DetectGesture(landmarks);
                 UpdateHandGestureObject(gestureGroup, gesture, i);
-                break;
             }
         }
 
@@ -145,7 +146,7 @@ namespace ClickClick.Tool
             gestureGroup.SetActive(true);
             UpdateObjectPosition(gestureGroup, handIndex);
 
-            // Check if rightHandGameObject is overlapping targetButton
+            // Check if rightHandGameObject or leftHandGameObject is overlapping targetButton
             bool newOverlappingState = IsOverlappingTargetButton(gestureGroup);
             if (newOverlappingState)
             {

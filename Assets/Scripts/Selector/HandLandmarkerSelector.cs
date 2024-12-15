@@ -136,8 +136,7 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
     private void OnHandLandmarkDetectionOutput(HandLandmarkerResult result, Image image, long timestamp)
     {
       if (result.handedness != null && result.handedness.Count > 0 &&
-          result.handedness[0].categories != null && result.handedness[0].categories.Count > 0 &&
-          result.handedness[0].categories[0].categoryName.ToLower().Contains("left"))
+          result.handedness[0].categories != null && result.handedness[0].categories.Count > 0)
       {
         _handLandmarkerResultAnnotationController.DrawLater(result);
         if (_circularProgressOnHold != null)
