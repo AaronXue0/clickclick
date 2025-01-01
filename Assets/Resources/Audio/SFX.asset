@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcae0a96614014e4d8e770a0a1c56074, type: 3}
+  m_Name: SFX
+  m_EditorClassIdentifier: 
+  groupName: SFX
+  assets:
+  - clipName: Click
+    clip: {fileID: 8300000, guid: 5849e9fb72f724fe99422ec8d6731e4b, type: 3}
+  - clipName: Fail
+    clip: {fileID: 8300000, guid: d787d3bfd3aab40e2b4c7732ed267f3f, type: 3}
+  - clipName: Transition
+    clip: {fileID: 8300000, guid: eb331d7404c484ce69d6e01e6a04b3d4, type: 3}
+  - clipName: Put
+    clip: {fileID: 8300000, guid: 28c77869ef05b40da8ac0afbd47fbf3e, type: 3}
