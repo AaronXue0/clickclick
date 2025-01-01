@@ -82,6 +82,7 @@ namespace ClickClick.Manager
                 string jsonData = ConvertPlayerToJson(player);
                 PlayerPrefs.SetString($"Player_{player.playerId}", jsonData);
             }
+
             PlayerPrefs.SetInt("CurrentPlayerId", currentPlayerId);
             PlayerPrefs.Save();
         }
@@ -111,6 +112,11 @@ namespace ClickClick.Manager
         #endregion
 
         #region Google Sheets
+        public void UploadCurrentPlayer()
+        {
+            UploadPlayerData(GetCurrentPlayer());
+        }
+
         public void UploadPlayerData(PlayerData playerData)
         {
             StartCoroutine(googleSheetsManager.UploadPlayerData(playerData));
@@ -156,9 +162,6 @@ namespace ClickClick.Manager
                 player.score = newScore;
                 RecalculateRanks();
                 SavePlayersData();
-
-                // Upload updated data to Google Sheets
-                UploadPlayerData(player);
             }
             else
             {
@@ -172,9 +175,6 @@ namespace ClickClick.Manager
             player.score = newScore;
             RecalculateRanks();
             SavePlayersData();
-
-            // Upload updated data to Google Sheets
-            UploadPlayerData(player);
         }
 
         private void RecalculateRanks()
