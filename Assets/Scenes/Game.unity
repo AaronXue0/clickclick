@@ -231,6 +231,7 @@ MonoBehaviour:
   transitionDuration: 0.5
   fadeImage: {fileID: 1120608075}
   fadeDuration: 0.5
+  audioController: {fileID: 0}
 --- !u!4 &50580068
 Transform:
   m_ObjectHideFlags: 0
