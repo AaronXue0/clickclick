@@ -44,7 +44,7 @@ namespace ClickClick.Rank
         private IEnumerator StartTestRevealSequence()
         {
             yield return new WaitForSeconds(1f);
-            AssignRank(1);
+            AssignRank(3);
         }
 
         private void Update()
@@ -124,7 +124,7 @@ namespace ClickClick.Rank
 
             rankDataList[rankDataList.Count - 1].rankText.text = "?";
 
-            yield return new WaitForSeconds(1f);
+            // yield return new WaitForSeconds(1f);
 
             // Determine player position based on rank
             int targetPosition;
@@ -135,7 +135,7 @@ namespace ClickClick.Rank
             else
                 targetPosition = 2;
 
-            yield return new WaitForSeconds(1f);
+            // yield return new WaitForSeconds(1f);
             yield return StartCoroutine(AnimatePlayerToPosition(targetPosition));
             yield return new WaitForSeconds(1f);
 

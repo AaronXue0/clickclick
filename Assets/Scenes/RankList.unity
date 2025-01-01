@@ -1293,7 +1293,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -300, y: 234.41672}
+  m_AnchoredPosition: {x: -300, y: 234.41669}
   m_SizeDelta: {x: 474.33334, y: 468.83337}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &382935660
@@ -2123,7 +2123,7 @@ MonoBehaviour:
     rankText: {fileID: 1731422855}
     scoreText: {fileID: 722745517}
   btn: {fileID: 1182093638}
-  revealDuration: 4
+  revealDuration: 3.7
   numberChangeInterval: 0.05
   drumRollAudio: {fileID: 1901429486}
   showRankAudio: {fileID: 1804907292}
