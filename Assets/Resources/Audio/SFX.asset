@@ -14,11 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groupName: SFX
   assets:
-  - clipName: Click
-    clip: {fileID: 8300000, guid: 5849e9fb72f724fe99422ec8d6731e4b, type: 3}
-  - clipName: Fail
-    clip: {fileID: 8300000, guid: d787d3bfd3aab40e2b4c7732ed267f3f, type: 3}
-  - clipName: Transition
-    clip: {fileID: 8300000, guid: eb331d7404c484ce69d6e01e6a04b3d4, type: 3}
-  - clipName: Put
-    clip: {fileID: 8300000, guid: 28c77869ef05b40da8ac0afbd47fbf3e, type: 3}
+  - clipName: ShowUp
+    clip: {fileID: 8300000, guid: 595a9c34f7d6944aa9f5f2578d2b5958, type: 3}
+  - clipName: DrumEffect
+    clip: {fileID: 8300000, guid: d8643c69e3a284dccab799af6c4c03c1, type: 3}

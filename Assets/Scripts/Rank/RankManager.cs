@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using TMPro;
+using AudioSystem;
 
 namespace ClickClick.Rank
 {
@@ -13,6 +14,11 @@ namespace ClickClick.Rank
         [SerializeField] private GameObject btn;
         [SerializeField] private float revealDuration = 3f; // Duration of the reveal animation
         [SerializeField] private float numberChangeInterval = 0.05f; // How fast numbers change
+
+        [Header("Audio")]
+        [SerializeField] private AudioController drumRollAudio;
+        [SerializeField] private AudioController showRankAudio;
+
 
         private List<GameObject> rankObjects = new List<GameObject>();
         private Transform playerRankObject;
@@ -91,6 +97,8 @@ namespace ClickClick.Rank
 
             // Start random number animation for all ranks except player
             Coroutine randomizeCoroutine = StartCoroutine(RandomizeNumbers());
+
+            drumRollAudio.DoAction();
 
             // Decrease player's rank
             while (elapsedTime < revealDuration)
@@ -190,6 +198,11 @@ namespace ClickClick.Rank
                 rankDataList[i].rank = displayRank;
                 yield return new WaitForSeconds(0.15f);
             }
+
+            showRankAudio.DoAction();
+
+            yield return new WaitForSeconds(0.1f);
+
             UpdatePlayerRankDisplay(targetPlayerRank);
         }
 
