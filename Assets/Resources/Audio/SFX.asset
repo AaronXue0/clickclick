@@ -14,7 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groupName: SFX
   assets:
-  - clipName: ShowUp
-    clip: {fileID: 8300000, guid: 595a9c34f7d6944aa9f5f2578d2b5958, type: 3}
-  - clipName: DrumEffect
+  - clipName: "\u6392\u884C\u699C\u6E96\u5099"
     clip: {fileID: 8300000, guid: d8643c69e3a284dccab799af6c4c03c1, type: 3}
+  - clipName: "\u6392\u884C\u699C\u516C\u5E03"
+    clip: {fileID: 8300000, guid: 595a9c34f7d6944aa9f5f2578d2b5958, type: 3}
+  - clipName: "\u5012\u6578\u8A08\u6642"
+    clip: {fileID: 8300000, guid: dc6c9601e9e13457ab9cea4bd6e392b5, type: 3}
+  - clipName: "\u5012\u6578\u5341\u79D2"
+    clip: {fileID: 8300000, guid: 3c17a5a3b85ab40bf9a2058d3b11534a, type: 3}
+  - clipName: "\u62CD\u7167\u8072"
+    clip: {fileID: 8300000, guid: 968077328936d4d579bab8f07c2b06ce, type: 3}
+  - clipName: "\u6309\u9215"
+    clip: {fileID: 8300000, guid: 8972450cbc731494aa2c0ab9d51d82aa, type: 3}
+  - clipName: "\u8F49\u5834"
+    clip: {fileID: 8300000, guid: adecde62d8a4a48cbba4d997521811e9, type: 3}

@@ -13,6 +13,9 @@ namespace ClickClick.Tool
         [SerializeField] protected float duration;
         [SerializeField] protected float targetButtonScaleDownFactor = 0.9f;
 
+        [Header("Audio")]
+        [SerializeField] protected AudioController audioController;
+
         [Header("Hand Gesture")]
         [SerializeField] protected GameObject rightHandGameObject;
         [SerializeField] protected GameObject leftHandGameObject;
@@ -36,12 +39,15 @@ namespace ClickClick.Tool
         [SerializeField] protected float stateChangeDuration = 0.3f;
 
         protected abstract float ProgressFillAmount { get; set; }
+        protected bool startOverlapping = false;
+
 
         protected virtual void Start()
         {
             gestureDetector = new HandGestureDetector();
             lastStateChangeTime = -stateChangeCooldown;
             InitializeTargetButton();
+            startOverlapping = false;
         }
 
         // Abstract methods that derived classes must implement
@@ -65,6 +71,12 @@ namespace ClickClick.Tool
         {
             if (isOverlapping && !isCompleted)
             {
+                if (startOverlapping == false)
+                {
+                    startOverlapping = true;
+                    audioController.DoAction();
+                }
+
                 // Increase progress over time
                 currentProgress += Time.deltaTime / duration;
                 currentProgress = Mathf.Clamp01(currentProgress);
@@ -96,7 +108,7 @@ namespace ClickClick.Tool
         {
             currentProgress = 0f;
             ProgressFillAmount = 0f;
-
+            startOverlapping = false;
             // Only fade in hand if allowed
             if (allowHandVisibilityChange)
             {

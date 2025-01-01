@@ -14,6 +14,9 @@ namespace ClickClick
         [SerializeField] private Image fadeImage;
         [SerializeField] private float fadeDuration = 1f;
 
+        [Header("Audio")]
+        [SerializeField] private AudioController audioController;
+
         private void Awake()
         {
             if (Instance == null)
@@ -35,6 +38,8 @@ namespace ClickClick
         private IEnumerator TransitionCoroutine(string sceneName)
         {
             canvas.SetActive(true);
+            audioController.DoAction();
+
             // Start the fade in
             yield return StartCoroutine(FadeIn());
 

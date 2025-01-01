@@ -2872,6 +2872,65 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1081989288}
   m_CullTransparentMesh: 1
+--- !u!1 &1083423128
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1083423129}
+  - component: {fileID: 1083423130}
+  m_Layer: 0
+  m_Name: Audio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1083423129
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1083423128}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2038873739}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1083423130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1083423128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38a843ab7436a3c4c9b9c93553e76d7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionOnStart: 0
+  audioAction:
+    type: 1
+    bgmActionType: 0
+    soundActionType: 0
+    clipReferenceType: 1
+    groupName: SFX
+    clipName: "\u6309\u9215"
+    clip: {fileID: 0}
+    loop: 0
+    bgmResumeFadeIn: 1
+    fadeDuration: 1
+    soundMode: 0
+    rndPitch: 1
+    rndRange: {x: -0.7, y: 0.7}
 --- !u!1 &1102834124
 GameObject:
   m_ObjectHideFlags: 0
@@ -3411,6 +3470,7 @@ MonoBehaviour:
   transitionDuration: 0.5
   fadeImage: {fileID: 1703531906}
   fadeDuration: 0.5
+  audioController: {fileID: 0}
 --- !u!4 &1221056881
 Transform:
   m_ObjectHideFlags: 0
@@ -4945,7 +5005,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1083423129}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2038873740
@@ -4980,6 +5041,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 1.5
   targetButtonScaleDownFactor: 0.9
+  audioController: {fileID: 1083423130}
   rightHandGameObject: {fileID: 1803348850}
   leftHandGameObject: {fileID: 2039741782}
   handLandmarkAnnotation: {fileID: 176648958}

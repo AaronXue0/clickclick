@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groupName: BGM
   assets:
-  - clipName: NewClip
+  - clipName: Menu
+    clip: {fileID: 0}
+  - clipName: Game
     clip: {fileID: 0}
