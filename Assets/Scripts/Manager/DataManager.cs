@@ -115,7 +115,10 @@ namespace ClickClick.Manager
 
         public void UploadPlayerData(PlayerData playerData)
         {
-            StartCoroutine(googleSheetsManager.UploadPlayerData(playerData));
+            if (playerData.score > 0)
+            {
+                StartCoroutine(googleSheetsManager.UploadPlayerData(playerData));
+            }
         }
 
         public void LoadAllPlayersFromSheet()
