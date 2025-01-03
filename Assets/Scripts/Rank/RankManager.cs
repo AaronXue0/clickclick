@@ -333,8 +333,16 @@ namespace ClickClick.Rank
                 {
                     rankData.rankText.text = rank.ToString();
                 }
+                else
+                {
+                    rankData.rankText.text = "?";
+                }
 
                 if (rankData.scoreText != null)
+                {
+                    rankData.scoreText.text = score.ToString();
+                }
+                else
                 {
                     rankData.scoreText.text = score.ToString();
                 }

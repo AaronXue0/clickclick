@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using ClickClick.Manager;
+using UnityEngine.Events;
 
 namespace ClickClick.Tool
 {
@@ -10,6 +10,8 @@ namespace ClickClick.Tool
         public bool progressApproval = true;
         [SerializeField] private GameObject targetButton;
         [SerializeField] private Image progressImage;
+
+        [SerializeField] private UnityEvent onProgressComplete;
 
         private Vector3 originalTargetButtonScale;
 

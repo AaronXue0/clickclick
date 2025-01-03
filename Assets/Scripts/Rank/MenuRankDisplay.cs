@@ -32,6 +32,11 @@ namespace ClickClick.Rank
             StartCoroutine(InitializeRankDisplay());
         }
 
+        public void GameStart()
+        {
+            DataManager.Instance.CreateNewPlayer();
+        }
+
         private IEnumerator InitializeRankDisplay()
         {
             // Wait for DataManager to be fully initialized

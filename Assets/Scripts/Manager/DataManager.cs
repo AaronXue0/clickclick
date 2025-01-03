@@ -59,7 +59,8 @@ namespace ClickClick.Manager
             };
 
             players.Add(newPlayer);
-            SavePlayersData();
+
+            currentPlayer = newPlayer;
 
             return newPlayer;
         }
@@ -115,6 +116,8 @@ namespace ClickClick.Manager
 
         public void UploadPlayerData(PlayerData playerData)
         {
+            Debug.Log($"Uploading player data: {playerData.playerId}, {playerData.score}");
+
             if (playerData.score > 0)
             {
                 StartCoroutine(googleSheetsManager.UploadPlayerData(playerData));
@@ -146,11 +149,6 @@ namespace ClickClick.Manager
 
         public PlayerData GetCurrentPlayer()
         {
-            // If no current player is set, create a new one
-            if (currentPlayer == null)
-            {
-                currentPlayer = CreateNewPlayer();
-            }
             return currentPlayer;
         }
 
@@ -162,11 +160,6 @@ namespace ClickClick.Manager
         public void SetCurrentPlayer(int playerId)
         {
             currentPlayer = GetPlayer(playerId);
-            if (currentPlayer == null)
-            {
-                Debug.LogWarning($"Player with ID {playerId} not found. Creating new player.");
-                currentPlayer = CreateNewPlayer();
-            }
         }
 
         public void UpdatePlayerScore(int playerId, int newScore)
