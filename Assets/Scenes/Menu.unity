@@ -4908,7 +4908,7 @@ MonoBehaviour:
   leftHandGameObject: {fileID: 83563249}
   handLandmarkAnnotation: {fileID: 176648958}
   sceneToTransitionTo: CharacterSelector
-  allowHandVisibilityChange: 1
+  allowHandVisibilityChange: 0
   stateChangeCooldown: 0.2
   stateChangeDuration: 0.3
   progressApproval: 1
