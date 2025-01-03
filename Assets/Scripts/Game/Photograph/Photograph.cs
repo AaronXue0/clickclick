@@ -314,7 +314,7 @@ namespace ClickClick.Photograph
                 screenHeight / imageHeight
             ) * 0.8f; // 80% of screen size
 
-            capturedPhotoImage.rectTransform.localScale = new Vector3(scaleRatio, scaleRatio, 1);
+            capturedPhotoImage.rectTransform.localScale = new Vector3(1, 1, 1);
 
             // Wait for display duration
             yield return new WaitForSeconds(photoDisplayDuration);
