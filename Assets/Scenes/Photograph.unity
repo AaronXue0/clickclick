@@ -1347,6 +1347,9 @@ MonoBehaviour:
   photoDisplayDuration: 1
   photoMaskRectTransform: {fileID: 1193613267}
   photoMask: {fileID: 2013318110}
+  playerCharacterIcon: {fileID: 1381921898}
+  avatarImage: {fileID: 1290048624}
+  playerNameText: {fileID: 1298019113}
   photoMaskCanvasGroup: {fileID: 1193613270}
   delayBeforeTransition: 1
   transitionButtonContainer: {fileID: 2041792870}

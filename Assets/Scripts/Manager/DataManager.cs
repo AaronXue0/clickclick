@@ -133,6 +133,17 @@ namespace ClickClick.Manager
         #endregion
 
         #region Current Player Management
+
+        public Sprite GetCurrentPlayerSprite()
+        {
+            return characterGroup.GetCharacterSprite(GetCurrentPlayer().characterId);
+        }
+
+        public string GetCurrentPlayerName()
+        {
+            return characterGroup.GetCharacterName(GetCurrentPlayer().characterId);
+        }
+
         public PlayerData GetCurrentPlayer()
         {
             // If no current player is set, create a new one

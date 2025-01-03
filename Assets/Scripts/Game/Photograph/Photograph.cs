@@ -29,6 +29,9 @@ namespace ClickClick.Photograph
         [Header("Photo Mask")]
         [SerializeField] private RectTransform photoMaskRectTransform;
         [SerializeField] private Image photoMask;
+        [SerializeField] private Image playerCharacterIcon;
+        [SerializeField] private Image avatarImage;
+        [SerializeField] private TMP_Text playerNameText;
         [SerializeField] private CanvasGroup photoMaskCanvasGroup;
 
         [Header("Scene Transition")]
@@ -59,6 +62,13 @@ namespace ClickClick.Photograph
             {
                 transitionButton.progressApproval = false;
             }
+
+            LoadPlayerInfo();
+        }
+
+        private void OnEnable()
+        {
+
         }
 
         private void Update()
@@ -386,6 +396,19 @@ namespace ClickClick.Photograph
 
             // Clean up
             Destroy(screenshot);
+        }
+
+        private void LoadPlayerInfo()
+        {
+            if (DataManager.Instance != null)
+            {
+                string playerName = DataManager.Instance.GetCurrentPlayerName();
+                playerNameText.text = playerName;
+
+                Sprite characterSprite = DataManager.Instance.GetCurrentPlayerSprite();
+                playerCharacterIcon.sprite = characterSprite;
+                avatarImage.sprite = characterSprite;
+            }
         }
     }
 }

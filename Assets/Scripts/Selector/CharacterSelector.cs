@@ -2,34 +2,33 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
-using Mediapipe.Tasks.Vision.HandLandmarker;
-using ClickClick.GestureTracking;
-using Mediapipe.Unity;
 using TMPro;
 using DG.Tweening;
+using ClickClick.Data;
 
 namespace ClickClick.Tool
 {
     [System.Serializable]
-    public class CharacterData
+    public class CharacterButtonData
     {
-        public Sprite characterSprite;
-        public string characterName;
+        public int id;
         public Button characterButton;
         public Image characterImage;
         public Image progressImage;
+        public TMP_Text characterNameText;
     }
 
     public class CharacterSelector : CircularProgressOnHold
     {
         [Header("Character Selection")]
         [SerializeField] private Sprite defaultPreviewSprite;
-        [SerializeField] private List<CharacterData> characters = new List<CharacterData>();
+        [SerializeField] private List<CharacterButtonData> characters = new List<CharacterButtonData>();
         [SerializeField] private Image previewImage;
         [SerializeField] private TMP_Text characterNameText;
         [SerializeField] private RectTransform screenshotArea;
+        [SerializeField] private CharacterGroup characterGroup;
 
-        private CharacterData currentTarget;
+        private CharacterButtonData currentTarget;
         private Dictionary<Button, Vector3> originalButtonScales = new Dictionary<Button, Vector3>();
         private bool isSelectionLocked = false;
 
@@ -51,8 +50,9 @@ namespace ClickClick.Tool
             foreach (var character in characters)
             {
                 originalButtonScales[character.characterButton] = character.characterButton.transform.localScale;
-                character.characterImage.sprite = character.characterSprite;
-                character.characterButton.GetComponentInChildren<TMP_Text>().text = character.characterName;
+                var characterData = characterGroup.GetCharacterData(character.id);
+                character.characterImage.sprite = characterData.characterSprite;
+                character.characterNameText.text = characterData.characterName;
             }
         }
 
@@ -63,9 +63,16 @@ namespace ClickClick.Tool
                 // Lock the selection
                 isSelectionLocked = true;
 
+                // Fetch CharacterData using ID
+                var characterData = characterGroup.GetCharacterData(currentTarget.id);
+
                 // Update preview
-                previewImage.sprite = currentTarget.characterSprite;
-                characterNameText.text = currentTarget.characterName;
+                previewImage.sprite = characterData.characterSprite;
+                characterNameText.text = characterData.characterName;
+
+                // Save the selected character to DataManager
+                Manager.DataManager.Instance.GetCurrentPlayer().characterId = characterData.characterId;
+                Debug.Log("Selected character: " + characterData.characterName);
 
                 // Trigger the button click
                 currentTarget.characterButton.onClick.Invoke();
@@ -97,7 +104,7 @@ namespace ClickClick.Tool
             }
 
             RectTransform gestureRect = gestureObject.GetComponent<RectTransform>();
-            CharacterData previousTarget = currentTarget;
+            CharacterButtonData previousTarget = currentTarget;
 
             foreach (var character in characters)
             {
@@ -174,25 +181,19 @@ namespace ClickClick.Tool
             }
         }
 
-        private void UpdatePreview(CharacterData character)
+        private void UpdatePreview(CharacterButtonData character)
         {
-            Debug.Log($"UpdatePreview called with character: {character}");
-            Debug.Log($"previewImage reference: {previewImage}");
-
             if (character != null)
             {
-                Debug.Log($"Character sprite: {character.characterSprite}");
-                previewImage.sprite = character.characterSprite;
-                characterNameText.text = character.characterName;
+                var characterData = characterGroup.GetCharacterData(character.id);
+                previewImage.sprite = characterData.characterSprite;
+                characterNameText.text = characterData.characterName;
             }
             else
             {
-                Debug.Log($"Default preview sprite: {defaultPreviewSprite}");
                 previewImage.sprite = defaultPreviewSprite;
                 characterNameText.text = "";
             }
-
-            Debug.Log($"Preview image current sprite: {previewImage.sprite}");
         }
 
         protected override void Start()
@@ -201,6 +202,13 @@ namespace ClickClick.Tool
             allowHandVisibilityChange = false;
 
             base.Start();
+
+            // Initialize button images at start
+            foreach (var character in characters)
+            {
+                var characterData = characterGroup.GetCharacterData(character.id);
+                character.characterImage.sprite = characterData.characterSprite;
+            }
         }
     }
 }

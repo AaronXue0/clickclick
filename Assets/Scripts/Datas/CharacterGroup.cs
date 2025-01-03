@@ -23,7 +23,7 @@ namespace ClickClick.Data
 
         public CharacterData GetCharacterData(int characterId)
         {
-            return characterDatas.Find(character => character.characterId == characterId);
+            return characterDatas[characterId];
         }
 
         public CharacterData GetCharacterData(string characterName)
@@ -33,7 +33,7 @@ namespace ClickClick.Data
 
         public Sprite GetCharacterSprite(int characterId)
         {
-            return characterDatas.Find(character => character.characterId == characterId).characterSprite;
+            return characterDatas[characterId].characterSprite;
         }
 
         public Sprite GetCharacterSprite(string characterName)
@@ -43,7 +43,7 @@ namespace ClickClick.Data
 
         public string GetCharacterName(int characterId)
         {
-            return characterDatas.Find(character => character.characterId == characterId).characterName;
+            return characterDatas[characterId].characterName;
         }
 
         public string GetCharacterName(string characterName)
