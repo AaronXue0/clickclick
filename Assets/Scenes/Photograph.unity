@@ -1345,7 +1345,7 @@ MonoBehaviour:
   flashDuration: 0.5
   capturedPhotoImage: {fileID: 1050538800}
   photoDisplayDuration: 1
-  photoMaskRectTransform: {fileID: 1193613267}
+  photoMaskRectTransform: {fileID: 1142764260}
   photoMask: {fileID: 2013318110}
   playerCharacterIcon: {fileID: 1381921898}
   avatarImage: {fileID: 1290048624}
@@ -1531,6 +1531,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1050538798}
   m_CullTransparentMesh: 1
+--- !u!1 &1142764259
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1142764260}
+  m_Layer: 5
+  m_Name: ScreenArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1142764260
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1142764259}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8571076843365958025}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1176450220
 GameObject:
   m_ObjectHideFlags: 0
@@ -2711,7 +2746,6 @@ MonoBehaviour:
   progressApproval: 1
   targetButton: {fileID: 2041792870}
   progressImage: {fileID: 1832953795}
-  dataManager: {fileID: 0}
 --- !u!114 &1779546997
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3609,6 +3643,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1050538799}
+  - {fileID: 1142764260}
   - {fileID: 1193613267}
   - {fileID: 2041792871}
   - {fileID: 2052155511}
