@@ -26,6 +26,7 @@ namespace ClickClick.Manager
                 return;
             }
             Instance = this;
+
             DontDestroyOnLoad(gameObject);
 
             googleSheetsManager = gameObject.AddComponent<GoogleSheetsManager>();
@@ -206,9 +207,53 @@ namespace ClickClick.Manager
         public List<PlayerData> GetTopPlayers(int count)
         {
             return players
-                .OrderBy(p => p.rank)
+                .OrderByDescending(p => p.score)
                 .Take(count)
                 .ToList();
+        }
+
+        public void AddScoreToCurrentPlayer(int scoreToAdd)
+        {
+            PlayerData player = GetCurrentPlayer();
+            player.score += scoreToAdd;
+            RecalculateRanks();
+            SavePlayersData();
+
+            // Upload to Google Sheets
+            UploadCurrentPlayer();
+        }
+
+        public void SaveCurrentPlayerScore()
+        {
+            if (currentPlayer != null)
+            {
+                // Save to local storage
+                SavePlayersData();
+
+                // Upload to Google Sheets
+                UploadCurrentPlayer();
+            }
+        }
+
+        public int GetCurrentPlayerScore()
+        {
+            PlayerData player = GetCurrentPlayer();
+            return player.score;
+        }
+
+        public bool IsHighScore(int score)
+        {
+            PlayerData player = GetCurrentPlayer();
+            return score > player.score;
+        }
+
+        public void ResetCurrentPlayerScore()
+        {
+            PlayerData player = GetCurrentPlayer();
+            player.score = 0;
+            RecalculateRanks();
+            SavePlayersData();
+            UploadCurrentPlayer();
         }
         #endregion
     }

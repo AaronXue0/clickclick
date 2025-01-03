@@ -4544,7 +4544,7 @@ MonoBehaviour:
     soundActionType: 0
     clipReferenceType: 1
     groupName: SFX
-    clipName: ShowUp
+    clipName: "\u6392\u884C\u699C\u516C\u5E03"
     clip: {fileID: 0}
     loop: 0
     bgmResumeFadeIn: 1
@@ -4754,7 +4754,7 @@ MonoBehaviour:
     soundActionType: 0
     clipReferenceType: 1
     groupName: SFX
-    clipName: DrumEffect
+    clipName: "\u6392\u884C\u699C\u6E96\u5099"
     clip: {fileID: 0}
     loop: 0
     bgmResumeFadeIn: 1
@@ -5052,6 +5052,7 @@ MonoBehaviour:
   progressApproval: 1
   targetButton: {fileID: 1182093638}
   progressImage: {fileID: 1890659741}
+  dataManager: {fileID: 0}
 --- !u!1 &2039741782
 GameObject:
   m_ObjectHideFlags: 0

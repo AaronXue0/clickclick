@@ -6,6 +6,7 @@ using TMPro;
 using Mediapipe;
 using UnityEngine.Events;
 using DG.Tweening;
+using ClickClick.Manager;
 
 namespace ClickClick.Gameplay
 {
@@ -326,6 +327,8 @@ namespace ClickClick.Gameplay
             {
                 _countdownSequence.Kill();
             }
+
+            DataManager.Instance.AddScoreToCurrentPlayer(_scores);
 
             _countdownSequence = DOTween.Sequence();
 

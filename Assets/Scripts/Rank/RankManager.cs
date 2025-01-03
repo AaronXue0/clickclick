@@ -4,6 +4,9 @@ using UnityEngine.UI;
 using System.Collections;
 using TMPro;
 using AudioSystem;
+using ClickClick.Manager;
+using ClickClick.Data;
+using System.Linq;
 
 namespace ClickClick.Rank
 {
@@ -38,30 +41,70 @@ namespace ClickClick.Rank
 
         private void Start()
         {
-            StartCoroutine(StartTestRevealSequence());
+            // Just load rankings directly
+            LoadPlayerRankings();
         }
 
-        private IEnumerator StartTestRevealSequence()
+        private void LoadPlayerRankings()
         {
-            yield return new WaitForSeconds(1f);
-            AssignRank(3);
-        }
+            // Get current player's data
+            PlayerData currentPlayer = DataManager.Instance.GetCurrentPlayer();
+            int currentRank = currentPlayer.rank;
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
+            // Get all players sorted by rank
+            List<PlayerData> allPlayers = DataManager.Instance.GetTopPlayers(999);
+
+            // Find current player's index in the sorted list
+            int currentPlayerIndex = allPlayers.FindIndex(p => p.playerId == currentPlayer.playerId);
+
+            List<PlayerData> displayPlayers = new List<PlayerData>();
+
+            if (currentRank == 1)
             {
-                AssignRank(1);
+                // If player is top ranked, get 4 players below
+                displayPlayers = allPlayers
+                    .Take(5)
+                    .ToList();
             }
+            else
+            {
+                // Get 2 players above and 2 below
+                int startIndex = Mathf.Max(currentPlayerIndex - 2, 0);
+                int count = 5;
+
+                // Adjust if we're near the start of the list
+                if (startIndex + count > allPlayers.Count)
+                {
+                    startIndex = Mathf.Max(allPlayers.Count - count, 0);
+                }
+
+                displayPlayers = allPlayers
+                    .Skip(startIndex)
+                    .Take(count)
+                    .ToList();
+            }
+
+            // Update UI for each rank position
+            for (int i = 0; i < displayPlayers.Count && i < rankDataList.Count; i++)
+            {
+                PlayerData player = displayPlayers[i];
+                UpdateRankDisplay(rankDataList[i], player.rank, player.score);
+                rankDataList[i].rank = player.rank;
+                rankDataList[i].score = player.score;
+            }
+
+            // Start reveal animation
+            AssignRank(currentRank);
         }
 
         public void AssignRank(int rank)
         {
             if (isRevealing) return;
 
-            FetchRank(rank);
+            PlayerData currentPlayer = DataManager.Instance.GetCurrentPlayer();
+            targetPlayerRank = currentPlayer.rank;
 
-            targetPlayerRank = rank;
+            FetchRank(targetPlayerRank);
             StartCoroutine(RevealRankSequence());
         }
 
@@ -92,7 +135,7 @@ namespace ClickClick.Rank
         {
             Debug.Log("Starting RevealRankSequence");
             isRevealing = true;
-            int currentDisplayRank = 9999;
+            int currentDisplayRank;
             float elapsedTime = 0f;
 
             // Start random number animation for all ranks except player
@@ -178,37 +221,45 @@ namespace ClickClick.Rank
 
         private IEnumerator DisplayFinalRanks()
         {
-            // Display ranks for all positions
-            for (int i = 0; i < rankObjects.Count - 1; i++)
+            PlayerData currentPlayer = DataManager.Instance.GetCurrentPlayer();
+            List<PlayerData> displayPlayers;
+
+            if (currentPlayer.rank == 1)
             {
-                int displayRank;
-                int playerPosition = targetPlayerRank == 1 ? 0 : (targetPlayerRank == 2 ? 1 : 2);
+                // Get top 5 players
+                displayPlayers = DataManager.Instance.GetTopPlayers(5);
+            }
+            else
+            {
+                // Get surrounding players
+                List<PlayerData> allPlayers = DataManager.Instance.GetTopPlayers(999);
+                int currentIndex = allPlayers.FindIndex(p => p.playerId == currentPlayer.playerId);
+                int startIndex = Mathf.Max(currentIndex - 2, 0);
+                displayPlayers = allPlayers
+                    .Skip(startIndex)
+                    .Take(5)
+                    .ToList();
+            }
 
-                if (i < playerPosition) // Positions above player
-                {
-                    displayRank = targetPlayerRank - (playerPosition - i);
-                    if (displayRank < 1) displayRank = 1;
-                }
-                else // Positions below player
-                {
-                    displayRank = targetPlayerRank + (i - playerPosition + 1);
-                }
-
-                UpdateRankDisplay(rankDataList[i], displayRank, GetScoreForRank(displayRank));
-                rankDataList[i].rank = displayRank;
+            // Display ranks
+            for (int i = 0; i < displayPlayers.Count && i < rankDataList.Count - 1; i++)
+            {
+                PlayerData player = displayPlayers[i];
+                UpdateRankDisplay(rankDataList[i], player.rank, player.score);
                 yield return new WaitForSeconds(0.15f);
             }
 
             showRankAudio.DoAction();
-
             yield return new WaitForSeconds(0.1f);
 
-            UpdatePlayerRankDisplay(targetPlayerRank);
+            // Show current player's rank
+            UpdatePlayerRankDisplay(currentPlayer.rank);
         }
 
         private void UpdatePlayerRankDisplay(int rank)
         {
-            UpdateRankDisplay(rankDataList[rankDataList.Count - 1], rank, GetScoreForRank(rank));
+            PlayerData currentPlayer = DataManager.Instance.GetCurrentPlayer();
+            UpdateRankDisplay(rankDataList[rankDataList.Count - 1], rank, currentPlayer.score);
         }
 
         private void UpdateRankDisplay(RankData rankData, int rank, int score)
@@ -225,13 +276,6 @@ namespace ClickClick.Rank
                     rankData.scoreText.text = score.ToString();
                 }
             }
-        }
-
-        private int GetScoreForRank(int rank)
-        {
-            // Simple scoring system: higher rank gets a lower score
-            // You can adjust this logic based on your actual scoring system
-            return (10000 - rank) * 100;
         }
     }
 
