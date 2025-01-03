@@ -17,6 +17,8 @@ namespace ClickClick.Manager
         private int currentPlayerId = 0;  // To track the next player ID
         private PlayerData currentPlayer;  // To track the current active player
 
+        public string CurrentPhotoPath { get; set; }
+
         private void Awake()
         {
             // Singleton pattern implementation
@@ -47,6 +49,7 @@ namespace ClickClick.Manager
 
         public void Initialize()
         {
+            CurrentPhotoPath = "";
             characterGroup.Initialize();
             LoadPlayersData();
         }

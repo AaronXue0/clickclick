@@ -20,6 +20,8 @@ namespace ClickClick.Rank
         [SerializeField] private AudioController drumRollAudio;
         [SerializeField] private AudioController showRankAudio;
 
+        [SerializeField] private GameObject transitionButtonContainer;
+
 
         private List<GameObject> rankObjects = new List<GameObject>();
         private Transform playerRankObject;
@@ -39,6 +41,7 @@ namespace ClickClick.Rank
 
         private void Start()
         {
+            transitionButtonContainer.SetActive(false);
             // Just load rankings directly
             LoadPlayerRankings();
         }
@@ -248,6 +251,7 @@ namespace ClickClick.Rank
         {
             PlayerData currentPlayer = DataManager.Instance.GetCurrentPlayer();
             UpdateRankDisplay(rankDataList[rankDataList.Count - 1], rank, currentPlayer.score);
+            transitionButtonContainer.SetActive(true);
         }
 
         private void UpdateRankDisplay(RankData rankData, int rank, int score)

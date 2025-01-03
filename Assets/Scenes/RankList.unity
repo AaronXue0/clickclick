@@ -2127,6 +2127,7 @@ MonoBehaviour:
   numberChangeInterval: 0.05
   drumRollAudio: {fileID: 1901429486}
   showRankAudio: {fileID: 1804907292}
+  transitionButtonContainer: {fileID: 2038873737}
 --- !u!1 &872290919
 GameObject:
   m_ObjectHideFlags: 0

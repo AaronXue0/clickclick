@@ -7,6 +7,8 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections;
 using ClickClick.Tool;
+using System.IO;
+using ClickClick.Manager;
 namespace ClickClick.Photograph
 {
     public class Photograph : MonoBehaviour
@@ -25,6 +27,7 @@ namespace ClickClick.Photograph
         [SerializeField] private float photoDisplayDuration = 1f;
 
         [Header("Photo Mask")]
+        [SerializeField] private RectTransform photoMaskRectTransform;
         [SerializeField] private Image photoMask;
         [SerializeField] private CanvasGroup photoMaskCanvasGroup;
 
@@ -64,6 +67,11 @@ namespace ClickClick.Photograph
             {
                 UpdateGestureObjectsInternal(currentResult);
                 needsUpdate = false;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                CaptureAndSaveMaskedPhoto();
             }
 
             UpdateCountdown();
@@ -307,27 +315,77 @@ namespace ClickClick.Photograph
             capturedPhotoImage.transform.SetParent(photoMask.transform, true);
             capturedPhotoImage.transform.SetSiblingIndex(0);
 
-            // Set to stretch and fill the mask
-            // capturedPhotoImage.rectTransform.anchorMin = Vector2.zero;
-            // capturedPhotoImage.rectTransform.anchorMax = Vector2.one;
-            // capturedPhotoImage.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            // capturedPhotoImage.rectTransform.offsetMin = Vector2.zero;
-            // capturedPhotoImage.rectTransform.offsetMax = Vector2.zero;
-            // capturedPhotoImage.rectTransform.localScale = Vector3.one;
-
             onCountdownComplete?.Invoke();
 
             // Add delay before showing transition button
             yield return new WaitForSeconds(delayBeforeTransition);
 
+            // Remove the direct scene transition code since it will now be handled by SingleButtonProgress
+
+            // After transition button is shown, capture the masked photo
+            yield return new WaitForSeconds(1f);
+
+            CaptureAndSaveMaskedPhoto();
+
             // Activate the transition button
+
+            yield return new WaitForSeconds(0.3f);
+
             if (transitionButton != null)
             {
                 transitionButton.progressApproval = true;
                 transitionButtonContainer.SetActive(true);
             }
+        }
 
-            // Remove the direct scene transition code since it will now be handled by SingleButtonProgress
+        private void CaptureAndSaveMaskedPhoto()
+        {
+            Canvas canvas = photoMaskRectTransform.GetComponentInParent<Canvas>();
+            if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            {
+                Debug.LogError("Canvas must be in ScreenSpaceOverlay mode for this to work");
+                return;
+            }
+
+            // Get the rect in screen space
+            Vector3[] corners = new Vector3[4];
+            photoMaskRectTransform.GetWorldCorners(corners);
+
+            // Convert corners to screen space
+            Vector2 min = RectTransformUtility.WorldToScreenPoint(null, corners[0]);
+            Vector2 max = RectTransformUtility.WorldToScreenPoint(null, corners[2]);
+
+            // Calculate dimensions
+            int width = (int)(max.x - min.x);
+            int height = (int)(max.y - min.y);
+
+            // Create a new Texture2D and read the screen pixels
+            Texture2D screenshot = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            screenshot.ReadPixels(new Rect(min.x, min.y, width, height), 0, 0);
+            screenshot.Apply();
+
+            // Save the screenshot
+            byte[] bytes = screenshot.EncodeToPNG();
+            string fileName = $"photo_{System.DateTime.Now:yyyyMMdd_HHmmss}.png";
+            string folderPath = Path.Combine(Application.persistentDataPath, "Photos");
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string filePath = Path.Combine(folderPath, fileName);
+            File.WriteAllBytes(filePath, bytes);
+
+            if (DataManager.Instance != null)
+            {
+                DataManager.Instance.CurrentPhotoPath = filePath;
+            }
+
+            Debug.Log($"Screenshot saved to: {filePath}");
+
+            // Clean up
+            Destroy(screenshot);
         }
     }
 }
