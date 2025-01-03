@@ -391,6 +391,8 @@ namespace ClickClick.Photograph
             string fileName = $"photo_{System.DateTime.Now:yyyyMMdd_HHmmss}.png";
             string folderPath = Path.Combine(Application.persistentDataPath, "Photos");
 
+            Debug.Log($"Saving photo to: {folderPath}");
+
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
