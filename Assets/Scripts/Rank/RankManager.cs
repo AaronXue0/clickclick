@@ -1,9 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.UI;
 using System.Collections;
 using TMPro;
-using AudioSystem;
 using ClickClick.Manager;
 using ClickClick.Data;
 using System.Linq;
@@ -47,15 +45,13 @@ namespace ClickClick.Rank
 
         private void LoadPlayerRankings()
         {
-            // Get current player's data
             PlayerData currentPlayer = DataManager.Instance.GetCurrentPlayer();
             int currentRank = currentPlayer.rank;
 
-            // Get all players sorted by rank
-            List<PlayerData> allPlayers = DataManager.Instance.GetTopPlayers(999);
-
-            // Find current player's index in the sorted list
-            int currentPlayerIndex = allPlayers.FindIndex(p => p.playerId == currentPlayer.playerId);
+            // Get all players except current player
+            List<PlayerData> allPlayers = DataManager.Instance.GetTopPlayers(999)
+                .Where(p => p.playerId != currentPlayer.playerId)
+                .ToList();
 
             List<PlayerData> displayPlayers = new List<PlayerData>();
 
@@ -63,29 +59,21 @@ namespace ClickClick.Rank
             {
                 // If player is top ranked, get 4 players below
                 displayPlayers = allPlayers
-                    .Take(5)
+                    .Take(4)  // Take 4 instead of 5 since current player will be shown separately
                     .ToList();
             }
             else
             {
-                // Get 2 players above and 2 below
-                int startIndex = Mathf.Max(currentPlayerIndex - 2, 0);
-                int count = 5;
-
-                // Adjust if we're near the start of the list
-                if (startIndex + count > allPlayers.Count)
-                {
-                    startIndex = Mathf.Max(allPlayers.Count - count, 0);
-                }
-
+                // Get surrounding players (excluding current player)
+                int startIndex = Mathf.Max(currentRank - 3, 0); // Adjust start index to get correct surrounding players
                 displayPlayers = allPlayers
                     .Skip(startIndex)
-                    .Take(count)
+                    .Take(4)  // Take 4 instead of 5
                     .ToList();
             }
 
-            // Update UI for each rank position
-            for (int i = 0; i < displayPlayers.Count && i < rankDataList.Count; i++)
+            // Update UI for surrounding players
+            for (int i = 0; i < displayPlayers.Count && i < rankDataList.Count - 1; i++)
             {
                 PlayerData player = displayPlayers[i];
                 UpdateRankDisplay(rankDataList[i], player.rank, player.score);
@@ -222,26 +210,26 @@ namespace ClickClick.Rank
         private IEnumerator DisplayFinalRanks()
         {
             PlayerData currentPlayer = DataManager.Instance.GetCurrentPlayer();
+            List<PlayerData> allPlayers = DataManager.Instance.GetTopPlayers(999)
+                .Where(p => p.playerId != currentPlayer.playerId)
+                .ToList();
+
             List<PlayerData> displayPlayers;
 
             if (currentPlayer.rank == 1)
             {
-                // Get top 5 players
-                displayPlayers = DataManager.Instance.GetTopPlayers(5);
+                displayPlayers = allPlayers.Take(4).ToList();
             }
             else
             {
-                // Get surrounding players
-                List<PlayerData> allPlayers = DataManager.Instance.GetTopPlayers(999);
-                int currentIndex = allPlayers.FindIndex(p => p.playerId == currentPlayer.playerId);
-                int startIndex = Mathf.Max(currentIndex - 2, 0);
+                int startIndex = Mathf.Max(currentPlayer.rank - 3, 0);
                 displayPlayers = allPlayers
                     .Skip(startIndex)
-                    .Take(5)
+                    .Take(4)
                     .ToList();
             }
 
-            // Display ranks
+            // Display ranks for other players
             for (int i = 0; i < displayPlayers.Count && i < rankDataList.Count - 1; i++)
             {
                 PlayerData player = displayPlayers[i];
