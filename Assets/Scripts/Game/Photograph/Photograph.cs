@@ -278,6 +278,19 @@ namespace ClickClick.Photograph
             string filePath = Path.Combine(folderPath, fileName);
             File.WriteAllBytes(filePath, texture.EncodeToPNG());
 
+            // Also save to Photos folder (same as masked photo)
+            string photosFileName = $"raw_photo_{System.DateTime.Now:yyyyMMdd_HHmmss}.png";
+            string photosFolderPath = Path.Combine(Application.persistentDataPath, "Photos");
+
+            if (!Directory.Exists(photosFolderPath))
+            {
+                Directory.CreateDirectory(photosFolderPath);
+            }
+
+            string photosFilePath = Path.Combine(photosFolderPath, photosFileName);
+            File.WriteAllBytes(photosFilePath, texture.EncodeToPNG());
+            Debug.Log($"Raw photo saved to: {photosFilePath}");
+
             // Update player data in DataManager
             if (DataManager.Instance != null)
             {
