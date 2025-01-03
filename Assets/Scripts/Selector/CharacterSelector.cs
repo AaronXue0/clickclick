@@ -77,17 +77,20 @@ namespace ClickClick.Tool
                 // Trigger the button click
                 currentTarget.characterButton.onClick.Invoke();
 
-                // Transition to the next scene after a short delay
-                StartCoroutine(TransitionAfterDelay());
+                // Determine which scene to transition to based on character ID
+                string targetScene = characterData.characterId == 0 ? "Tutorial" : sceneToTransitionTo;
+
+                // Transition to the appropriate scene after a short delay
+                StartCoroutine(TransitionAfterDelay(targetScene));
             }
         }
 
-        private IEnumerator TransitionAfterDelay()
+        private IEnumerator TransitionAfterDelay(string sceneName)
         {
             // Wait for a short moment to show the final state
             yield return new WaitForSeconds(0.5f);
-            // Transition to the next scene
-            SceneTransition.Instance.TransitionToScene(sceneToTransitionTo);
+            // Transition to the determined scene
+            SceneTransition.Instance.TransitionToScene(sceneName);
         }
 
         protected override bool IsOverlappingTargetButton(GameObject gestureObject)
