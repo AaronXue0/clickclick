@@ -10,7 +10,7 @@ namespace ClickClick.Tool
         public bool progressApproval = true;
         [SerializeField] private GameObject targetButton;
         [SerializeField] private Image progressImage;
-        [SerializeField] private DataManager dataManager;
+
         private Vector3 originalTargetButtonScale;
 
         protected override float ProgressFillAmount
@@ -28,10 +28,6 @@ namespace ClickClick.Tool
         {
             targetButton.GetComponent<Button>().onClick.Invoke();
             SceneTransition.Instance.TransitionToScene(sceneToTransitionTo);
-            if (dataManager != null)
-            {
-                dataManager.Initialize();
-            }
         }
 
         protected override bool IsOverlappingTargetButton(GameObject gestureObject)

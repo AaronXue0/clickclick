@@ -7,8 +7,10 @@ namespace ClickClick.Data
     {
         public int playerId;
         public int characterId;
-        public string imgPath;
         public int score;
         public int rank;
+
+        public string imgPath;
+        public string playerPhotoPath;
     }
 }

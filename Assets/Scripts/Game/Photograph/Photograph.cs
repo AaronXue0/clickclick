@@ -66,11 +66,6 @@ namespace ClickClick.Photograph
             LoadPlayerInfo();
         }
 
-        private void OnEnable()
-        {
-
-        }
-
         private void Update()
         {
             if (needsUpdate)
@@ -271,6 +266,24 @@ namespace ClickClick.Photograph
                 new Vector2(0.5f, 0.5f)
             );
 
+            // Save sprite to project folder
+            string fileName = $"player_photo_{System.DateTime.Now:yyyyMMdd_HHmmss}.png";
+            string folderPath = Path.Combine(Application.persistentDataPath, "PlayerPhotos");
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string filePath = Path.Combine(folderPath, fileName);
+            File.WriteAllBytes(filePath, texture.EncodeToPNG());
+
+            // Update player data in DataManager
+            if (DataManager.Instance != null)
+            {
+                DataManager.Instance.SetCurrentPlayerPhotoPath(filePath);
+            }
+
             // Display the photo and start animation
             StartCoroutine(DisplayPhotoAnimation(photoSprite));
         }
@@ -405,7 +418,7 @@ namespace ClickClick.Photograph
                 string playerName = DataManager.Instance.GetCurrentPlayerName();
                 playerNameText.text = playerName;
 
-                Sprite characterSprite = DataManager.Instance.GetCurrentPlayerSprite();
+                Sprite characterSprite = DataManager.Instance.GetCharacterSprite();
                 playerCharacterIcon.sprite = characterSprite;
                 avatarImage.sprite = characterSprite;
             }

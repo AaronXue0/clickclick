@@ -39,14 +39,6 @@ namespace ClickClick.Manager
             Initialize();
         }
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                UploadPlayerData(CreateNewPlayer(1));
-            }
-        }
-
         public void Initialize()
         {
             CurrentPhotoPath = "";
@@ -134,7 +126,12 @@ namespace ClickClick.Manager
 
         #region Current Player Management
 
-        public Sprite GetCurrentPlayerSprite()
+        public Sprite GetCharacterSprite(int characterId)
+        {
+            return characterGroup.GetCharacterSprite(characterId);
+        }
+
+        public Sprite GetCharacterSprite()
         {
             return characterGroup.GetCharacterSprite(GetCurrentPlayer().characterId);
         }
@@ -268,6 +265,17 @@ namespace ClickClick.Manager
             RecalculateRanks();
             SavePlayersData();
             UploadCurrentPlayer();
+        }
+
+        public void SetCurrentPlayerPhotoPath(string photoPath)
+        {
+            PlayerData player = GetCurrentPlayer();
+            if (player != null)
+            {
+                player.playerPhotoPath = photoPath;
+                SavePlayersData();
+                UploadCurrentPlayer(); // Upload to Google Sheets if needed
+            }
         }
         #endregion
     }
