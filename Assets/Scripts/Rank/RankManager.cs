@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
 using TMPro;
@@ -60,18 +61,16 @@ namespace ClickClick.Rank
 
             if (currentRank == 1)
             {
-                // If player is top ranked, get 4 players below
                 displayPlayers = allPlayers
-                    .Take(4)  // Take 4 instead of 5 since current player will be shown separately
+                    .Take(4)
                     .ToList();
             }
             else
             {
-                // Get surrounding players (excluding current player)
-                int startIndex = Mathf.Max(currentRank - 3, 0); // Adjust start index to get correct surrounding players
+                int startIndex = Mathf.Max(currentRank - 3, 0);
                 displayPlayers = allPlayers
                     .Skip(startIndex)
-                    .Take(4)  // Take 4 instead of 5
+                    .Take(4)
                     .ToList();
             }
 
@@ -82,10 +81,82 @@ namespace ClickClick.Rank
                 UpdateRankDisplay(rankDataList[i], player.rank, player.score);
                 rankDataList[i].rank = player.rank;
                 rankDataList[i].score = player.score;
+
+                // Load avatar
+                if (rankDataList[i].avatarImage != null)
+                {
+                    Sprite characterSprite = DataManager.Instance.GetCharacterSprite(player.characterId);
+                    if (characterSprite != null)
+                    {
+                        rankDataList[i].avatarImage.sprite = characterSprite;
+                        rankDataList[i].avatarImage.gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        rankDataList[i].avatarImage.gameObject.SetActive(false);
+                    }
+                }
+
+                // Load player photo
+                if (rankDataList[i].playerPhotoImage != null && !string.IsNullOrEmpty(player.playerPhotoPath))
+                {
+                    StartCoroutine(LoadPlayerPhoto(rankDataList[i].playerPhotoImage, player.playerPhotoPath));
+                }
+                else if (rankDataList[i].playerPhotoImage != null)
+                {
+                    rankDataList[i].playerPhotoImage.gameObject.SetActive(false);
+                }
+            }
+
+            // Load current player's images
+            var currentPlayerRankData = rankDataList[rankDataList.Count - 1];
+            if (currentPlayerRankData.avatarImage != null)
+            {
+                Sprite characterSprite = DataManager.Instance.GetCharacterSprite(currentPlayer.characterId);
+                if (characterSprite != null)
+                {
+                    currentPlayerRankData.avatarImage.sprite = characterSprite;
+                    currentPlayerRankData.avatarImage.gameObject.SetActive(true);
+                }
+            }
+
+            if (currentPlayerRankData.playerPhotoImage != null && !string.IsNullOrEmpty(currentPlayer.playerPhotoPath))
+            {
+                StartCoroutine(LoadPlayerPhoto(currentPlayerRankData.playerPhotoImage, currentPlayer.playerPhotoPath));
             }
 
             // Start reveal animation
             AssignRank(currentRank);
+        }
+
+        private IEnumerator LoadPlayerPhoto(UnityEngine.UI.Image targetImage, string photoPath)
+        {
+            if (!System.IO.File.Exists(photoPath))
+            {
+                Debug.LogWarning($"Player photo not found at path: {photoPath}");
+                targetImage.gameObject.SetActive(false);
+                yield break;
+            }
+
+            byte[] photoData = System.IO.File.ReadAllBytes(photoPath);
+            Texture2D texture = new Texture2D(2, 2);
+
+            if (texture.LoadImage(photoData))
+            {
+                Sprite photoSprite = Sprite.Create(
+                    texture,
+                    new UnityEngine.Rect(0, 0, texture.width, texture.height),
+                    new UnityEngine.Vector2(0.5f, 0.5f)
+                );
+                targetImage.sprite = photoSprite;
+                targetImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                Debug.LogError($"Failed to load player photo from path: {photoPath}");
+                targetImage.gameObject.SetActive(false);
+                Destroy(texture);
+            }
         }
 
         public void AssignRank(int rank)
@@ -274,6 +345,11 @@ namespace ClickClick.Rank
     [System.Serializable]
     public class RankData
     {
+        public TMP_Text rankText;
+        public TMP_Text scoreText;
+        public UnityEngine.UI.Image avatarImage;
+        public UnityEngine.UI.Image playerPhotoImage;
+
         [HideInInspector]
         public int rank;
         [HideInInspector]
@@ -282,8 +358,5 @@ namespace ClickClick.Rank
         public Texture rawImageTexture;
         [HideInInspector]
         public int score;
-
-        public TMP_Text rankText;
-        public TMP_Text scoreText;
     }
 }
